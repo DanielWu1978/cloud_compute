@@ -1,8 +1,17 @@
+# note ref: https://cloudkatha.com/how-to-launch-an-ec2-instance-in-an-existing-vpc-using-cloudformation/
 AWSTemplateFormatVersion: 2010-09-09
 Description: Test VPN perring
 
 
 Parameters:
+  VPC1:
+    Type: String
+    Description: default VPC
+    Default: vpc-0d2c3e0d0cff6aff7
+  VPC2:
+    Type: String
+    Description: non-default VPC
+    Default: vpc-01644344f38aadf1a
   SubnetIdVPC1:
     Type: String
     Description: Subnet in none default VPC
@@ -11,6 +20,7 @@ Parameters:
     Type: String
     Description: Subnet in default VPC
     Default: subnet-0f367d4f6633adef8
+
 Resources:
   VPC1Instance:
     Type: AWS::EC2::Instance
@@ -18,18 +28,49 @@ Resources:
       ImageId: ami-085284d24fe829cd0
       InstanceType: t2.micro
       KeyName: ec2-keypair
-      VpcId: vpc-01644344f38aadf1a
+      SubnetId: !Ref SubnetIdVPC1
       SecurityGroupIds:
-         - !Ref WebAppSecurityGroup
+         - !Ref VPC1SSHSecurityGroup
+
+
+  VPC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-085284d24fe829cd0
+      InstanceType: t2.micro
+      KeyName: ec2-keypair
+      SubnetId: !Ref SubnetIdVPC1
+      SecurityGroupIds:
+         - !Ref VPC2SSHSecurityGroup
 
   VPC1SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Join ["-", [security-group, dev]]
-      GroupDescription: "SSH inbound and outbound traffic"
+      GroupDescription: "SSH inbound"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-      VpcId: !Ref SubnetIdVPC1
+      VpcId: !Ref VPC1
+
+  VPC2SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [security-group, dev]]
+      GroupDescription: "SSH inbound"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC2
+
+Outputs:
+  VPC1InstanceId:
+    Description: Instance Id
+    Value: !Ref VPC1Instance
+  VPC2InstanceId:
+    Description: Instance Id
+    Value: !Ref VPC2Instance
