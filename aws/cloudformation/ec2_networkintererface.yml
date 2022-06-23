@@ -28,9 +28,13 @@ Resources:
       ImageId: ami-085284d24fe829cd0
       InstanceType: t2.micro
       KeyName: ec2-keypair
-      SubnetId: !Ref SubnetIdVPC1
-      SecurityGroupIds:
-         - !Ref VPC1SSHSecurityGroup
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          DeleteOnTermination: true
+          SubnetId: !Ref SubnetIdVPC1
+          GroupSet:
+            - !Ref VPC1SSHSecurityGroup
 
 
   VPC2Instance:
@@ -39,9 +43,13 @@ Resources:
       ImageId: ami-085284d24fe829cd0
       InstanceType: t2.micro
       KeyName: ec2-keypair
-      SubnetId: !Ref SubnetIdVPC2
-      SecurityGroupIds:
-         - !Ref VPC2SSHSecurityGroup
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          DeleteOnTermination: true
+          SubnetId: !Ref SubnetIdVPC2
+          GroupSet:
+            - !Ref VPC2SSHSecurityGroup
 
   VPC1SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
