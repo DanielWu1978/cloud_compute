@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Test VPN perring
+
+
+Parameters:
+  SubnetIdVPC1:
+    Type: String
+    Description: Subnet in none default VPC
+    Default: subnet-019c6fe2a405571e3
+  SubnetIdVPC2:
+    Type: String
+    Description: Subnet in default VPC
+    Default: subnet-0f367d4f6633adef8
+Resources:
+  VPC1Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-085284d24fe829cd0
+      InstanceType: t2.micro
+      KeyName: ec2-keypair
+      VpcId: vpc-01644344f38aadf1a
+      SecurityGroupIds:
+         - !Ref WebAppSecurityGroup
+
+  VPC1SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-", [security-group, dev]]
+      GroupDescription: "SSH inbound and outbound traffic"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref SubnetIdVPC1
